@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Verificación de Certificado</title>
+  <style>
+    :root {
+      --primary: #6a1b9a;
+      --primary-light: #9c4dcc;
+      --secondary: #f9a825;
+      --secondary-light: #ffd54f;
+      --background: #f5f5f5;
+      --text: #333333;
+      --text-light: #666666;
+      --white: #ffffff;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f3e5f5 0%, #ede7f6 100%);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .container {
+      display: flex;
+      max-width: 1200px;
+      width: 100%;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin: 20px 0;
+    }
+    
+    .info-panel {
+      flex: 1;
+      padding: 30px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .certificate-panel {
+      flex: 1.2;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+    }
+    
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    
+    h2 {
+      font-size: 22px;
+      margin: 20px 0 10px;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    
+    .certificate-info {
+      margin: 20px 0;
+    }
+    
+    .info-item {
+      margin: 12px 0;
+      display: flex;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      min-width: 100px;
+    }
+    
+    .certificate-view {
+      width: 100%;
+      max-width: 350px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      margin: 20px 0;
+    }
+    
+    .certificate-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: var(--secondary-light);
+      transform: translateY(-2px);
+    }
+    
+    .signature {
+      margin-top: 30px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      padding-top: 20px;
+    }
+    
+    .signature-name {
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    
+    .signature-title {
+      font-style: italic;
+      font-size: 14px;
+    }
+    
+    .error-message {
+      background: #ffebee;
+      color: #d32f2f;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .info-panel, .certificate-panel {
+        padding: 25px;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
+      .info-panel, .certificate-panel {
+        padding: 20px;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="info-panel">
+      <div class="logo">
+        <span>🎓</span>
+        <span>Frente de Profesionales ADN Napo</span>
+      </div>
+      
+      <h1>Verificación de Certificado</h1>
+      
+      <div id="contenido">
+        <div class="status-badge">
+          <div class="loading"></div>
+          <span>Verificando certificado...</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="certificate-panel">
+      <h2>Certificado de Aprobación</h2>
+      
+      <div class="certificate-view">
+        <div style="background: #f5f5f5; padding: 40px; text-align: center; border: 2px dashed #ccc;">
+          <p>Vista previa del certificado</p>
+          <p>Se cargará automáticamente después de la verificación</p>
+        </div>
+      </div>
+      
+      <div class="btn-group" id="btnGroup">
+        <!-- Los botones se generarán dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function verificarCertificado() {
+      const params = new URLSearchParams(window.location.search);
+      const codigo = params.get('codigo');
+      const contenido = document.getElementById('contenido');
+      const btnGroup = document.getElementById('btnGroup');
+      const certificateView = document.querySelector('.certificate-view');
+      
+      if (!codigo) {
+        contenido.innerHTML = `
+          <div class="error-message">
+            <p>⚠️ Agrega ?codigo=... en la URL.</p>
+            <p>Ejemplo: ?codigo=IAG001</p>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        const data = await fetch('iagenerativafpadn.json').then(r => r.json());
+        // Si el JSON es un array, buscamos por código
+        const cert = Array.isArray(data) ? 
+          data.find(x => x.codigo === codigo) : 
+          (data.codigo === codigo ? data : null);
+
+        if (!cert) {
+          contenido.innerHTML = `
+            <div class="error-message">
+              <p>❌ Certificado no encontrado.</p>
+              <p>El código <strong>${escapeHtml(codigo)}</strong> no es válido.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Actualizar el contenido
+        contenido.innerHTML = `
+          <div class="status-badge">
+            <span>✅</span>
+            <span>Certificado válido</span>
+          </div>
+          
+          <div class="certificate-info">
+            <h2>${escapeHtml(cert.nombres)} ${escapeHtml(cert.apellidos || '')}</h2>
+            
+            <div class="info-item">
+              <div class="info-label">Curso:</div>
+              <div>${escapeHtml(cert.curso || '')}</div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Duración:</div>
+              <div>${escapeHtml(cert.horas || '')} horas</div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Código:</div>
+              <div>${escapeHtml(cert.codigo)}</div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Fecha:</div>
+              <div>${escapeHtml(cert.fecha_inicio || '')} al ${escapeHtml(cert.fecha_fin || '')}</div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Modalidad:</div>
+              <div>${escapeHtml(cert.modalidad || '')}</div>
+            </div>
+            
+            <div class="info-item">
+              <div class="info-label">Lugar:</div>
+              <div>${escapeHtml(cert.lugar || '')}</div>
+            </div>
+          </div>
+          
+          <div class="signature">
+            <div class="signature-name">${escapeHtml(cert.Capacitador || '')}</div>
+            <div class="signature-title">Capacitador/a</div>
+          </div>
+        `;
+
+        // Actualizar la vista del certificado
+        const imageUrl = `imagenesadn/${codigo}.png`;
+        const drivePreview = cert.driveId
+          ? `https://drive.google.com/file/d/${cert.driveId}/preview`
+          : null;
+        const driveDownload = cert.driveId
+          ? `https://drive.google.com/uc?export=download&id=${cert.driveId}`
+          : null;
+
+        // Cargar imagen local
+        const img = document.createElement('img');
+        img.className = 'certificate-img';
+        img.alt = `Certificado de ${cert.nombres} ${cert.apellidos}`;
+        img.src = imageUrl;
+
+        img.onload = () => {
+          certificateView.innerHTML = '';
+          certificateView.appendChild(img);
+        };
+
+        img.onerror = () => {
+          if (drivePreview) {
+            certificateView.innerHTML = `
+              <iframe class="certificate-img" src="${drivePreview}" width="100%" height="300" frameborder="0"></iframe>
+            `;
+          } else {
+            certificateView.innerHTML = `
+              <div style="background: #f5f5f5; padding: 40px; text-align: center; border: 2px dashed #ccc;">
+                <p>Vista previa del certificado no disponible</p>
+                <p>Utilice los botones para ver o descargar el certificado completo</p>
+              </div>
+            `;
+          }
+        };
+
+        // Actualizar botones
+        btnGroup.innerHTML = '';
+        if (drivePreview) {
+          btnGroup.innerHTML += `
+            <a href="${drivePreview}" target="_blank" class="btn btn-primary">
+              <span>🔍</span>
+              <span>Ver certificado completo</span>
+            </a>
+          `;
+        }
+        if (driveDownload) {
+          btnGroup.innerHTML += `
+            <a href="${driveDownload}" class="btn btn-secondary">
+              <span>⬇️</span>
+              <span>Descargar PDF</span>
+            </a>
+          `;
+        }
+
+      } catch(err) {
+        contenido.innerHTML = `
+          <div class="error-message">
+            <p>⚠️ Error al verificar el certificado</p>
+            <p>${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Iniciar la verificación cuando se carga la página
+    document.addEventListener('DOMContentLoaded', verificarCertificado);
+  </script>
+</body>
+</html>
